@@ -84,9 +84,18 @@ class WindowsBackend(TypingBackend):
             else:
                 self._tap(_VR)
             return
-        m = _u32.VkKeyScanW(ord(ch))
+        c = ord(ch)
+        # Emoji / characters above U+FFFF: send as UTF-16 surrogate pairs
+        if c > 0xFFFF:
+            hi = 0xD800 + ((c - 0x10000) >> 10)
+            lo = 0xDC00 + ((c - 0x10000) & 0x3FF)
+            for surrogate in (hi, lo):
+                self._send(scan=surrogate, flags=_KUN)
+                self._send(scan=surrogate, flags=_KUN | _KU)
+            return
+        m = _u32.VkKeyScanW(c)
         if m in (-1, 0xFFFF):
-            c = ord(ch)
+            # Unicode character without a virtual key - send as scan code
             self._send(scan=c, flags=_KUN)
             self._send(scan=c, flags=_KUN | _KU)
             return
@@ -145,27 +154,66 @@ def _make_backend():
 # ---------------------------------------------------------------------------
 # Theme Colors
 # ---------------------------------------------------------------------------
-BG       = "#0d0d1a"
-BG2      = "#111126"
-CARD     = "#161630"
-CARD2    = "#1a1a3a"
-BORDER   = "#282855"
-ACCENT   = "#6c63ff"
-ACCENT2  = "#8b83ff"
-ACCENT3  = "#4a44cc"
-CYAN     = "#00c9db"
-GREEN    = "#00d68f"
-GREEN2   = "#00f0a0"
-YELLOW   = "#ffc048"
-ORANGE   = "#ff8c42"
-RED      = "#ff5c5c"
-RED2     = "#ff7878"
-FG       = "#e8e8f4"
-FG2      = "#a0a0c0"
-FG3      = "#6a6a90"
-INP_BG   = "#0f0f24"
-SEL_BG   = "#3d3d80"
-TAB_SEL  = "#1e1e42"
+THEMES = {
+    "dark": {
+        "BG": "#0d0d1a", "BG2": "#111126", "CARD": "#161630",
+        "CARD2": "#1a1a3a", "BORDER": "#282855",
+        "ACCENT": "#6c63ff", "ACCENT2": "#8b83ff", "ACCENT3": "#4a44cc",
+        "CYAN": "#00c9db", "GREEN": "#00d68f", "GREEN2": "#00f0a0",
+        "YELLOW": "#ffc048", "ORANGE": "#ff8c42",
+        "RED": "#ff5c5c", "RED2": "#ff7878",
+        "FG": "#e8e8f4", "FG2": "#a0a0c0", "FG3": "#6a6a90",
+        "INP_BG": "#0f0f24", "SEL_BG": "#3d3d80", "TAB_SEL": "#1e1e42",
+    },
+    "light": {
+        "BG": "#f0f1f5", "BG2": "#e8e9ef", "CARD": "#ffffff",
+        "CARD2": "#f5f5fa", "BORDER": "#d0d0e0",
+        "ACCENT": "#5b52e6", "ACCENT2": "#7a72ff", "ACCENT3": "#3d35b0",
+        "CYAN": "#009daa", "GREEN": "#00a86b", "GREEN2": "#00c07a",
+        "YELLOW": "#d49a00", "ORANGE": "#d97030",
+        "RED": "#d94040", "RED2": "#e05050",
+        "FG": "#1a1a2e", "FG2": "#4a4a6a", "FG3": "#8888a8",
+        "INP_BG": "#f8f8fc", "SEL_BG": "#b8b8e0", "TAB_SEL": "#e0e0f8",
+    },
+}
+
+_current_theme = "dark"
+
+
+def _t(key):
+    """Get a color from the current theme."""
+    return THEMES[_current_theme][key]
+
+
+# Initial color aliases (set once, re-read via _t() after theme switch)
+BG = THEMES["dark"]["BG"]
+BG2 = THEMES["dark"]["BG2"]
+CARD = THEMES["dark"]["CARD"]
+CARD2 = THEMES["dark"]["CARD2"]
+BORDER = THEMES["dark"]["BORDER"]
+ACCENT = THEMES["dark"]["ACCENT"]
+ACCENT2 = THEMES["dark"]["ACCENT2"]
+ACCENT3 = THEMES["dark"]["ACCENT3"]
+CYAN = THEMES["dark"]["CYAN"]
+GREEN = THEMES["dark"]["GREEN"]
+GREEN2 = THEMES["dark"]["GREEN2"]
+YELLOW = THEMES["dark"]["YELLOW"]
+ORANGE = THEMES["dark"]["ORANGE"]
+RED = THEMES["dark"]["RED"]
+RED2 = THEMES["dark"]["RED2"]
+FG = THEMES["dark"]["FG"]
+FG2 = THEMES["dark"]["FG2"]
+FG3 = THEMES["dark"]["FG3"]
+INP_BG = THEMES["dark"]["INP_BG"]
+SEL_BG = THEMES["dark"]["SEL_BG"]
+TAB_SEL = THEMES["dark"]["TAB_SEL"]
+
+
+def _refresh_globals():
+    """Update module-level color globals from the current theme."""
+    g = globals()
+    for key, val in THEMES[_current_theme].items():
+        g[key] = val
 
 
 # ---------------------------------------------------------------------------
@@ -245,99 +293,111 @@ class App:
         s.theme_use("clam")
         bf = self._bf
 
+        # Read current theme colors
+        _bg = _t("BG"); _bg2 = _t("BG2"); _card = _t("CARD")
+        _card2 = _t("CARD2"); _border = _t("BORDER")
+        _accent = _t("ACCENT"); _accent2 = _t("ACCENT2")
+        _cyan = _t("CYAN"); _green = _t("GREEN"); _green2 = _t("GREEN2")
+        _yellow = _t("YELLOW"); _orange = _t("ORANGE")
+        _red = _t("RED"); _red2 = _t("RED2")
+        _fg = _t("FG"); _fg2 = _t("FG2"); _fg3 = _t("FG3")
+        _inp = _t("INP_BG"); _sel = _t("SEL_BG"); _tab = _t("TAB_SEL")
+        _dis_bg = "#c0c0d0" if _current_theme == "light" else "#2a2a44"
+        _card_act = "#dddde8" if _current_theme == "light" else "#252550"
+
         # Frames
-        s.configure("BG.TFrame", background=BG)
-        s.configure("BG2.TFrame", background=BG2)
-        s.configure("Card.TFrame", background=CARD)
-        s.configure("Card2.TFrame", background=CARD2)
+        s.configure("BG.TFrame", background=_bg)
+        s.configure("BG2.TFrame", background=_bg2)
+        s.configure("Card.TFrame", background=_card)
+        s.configure("Card2.TFrame", background=_card2)
 
         # Labels
         for name, bg, fg, font_spec in [
-            ("Title.TLabel",    BG,   FG,  (bf, 18, "bold")),
-            ("Sub.TLabel",      BG,   FG3, (bf, 10)),
-            ("Head.TLabel",     CARD, FG,  (bf, 11, "bold")),
-            ("HeadBG.TLabel",   BG,   FG,  (bf, 11, "bold")),
-            ("Body.TLabel",     CARD, FG2, (bf, 10)),
-            ("BodyBG.TLabel",   BG,   FG2, (bf, 10)),
-            ("Val.TLabel",      CARD, ACCENT2, (bf, 11, "bold")),
-            ("ValG.TLabel",     CARD, GREEN, (bf, 11, "bold")),
-            ("ValO.TLabel",     CARD, ORANGE, (bf, 11, "bold")),
-            ("Stat.TLabel",     CARD, FG2, (bf, 10)),
-            ("StatBG.TLabel",   BG,   FG2, (bf, 10)),
-            ("Foot.TLabel",     BG,   FG3, (bf, 9)),
-            ("Cnt.TLabel",      CARD, FG3, (bf, 9)),
-            ("Big.TLabel",      CARD, FG,  (bf, 26, "bold")),
-            ("BigSub.TLabel",   CARD, FG2, (bf, 11)),
-            ("StatNum.TLabel",  CARD, ACCENT, (bf, 16, "bold")),
-            ("StatUnit.TLabel", CARD, FG3, (bf, 9)),
+            ("Title.TLabel",    _bg,   _fg,  (bf, 18, "bold")),
+            ("Sub.TLabel",      _bg,   _fg3, (bf, 10)),
+            ("Head.TLabel",     _card, _fg,  (bf, 11, "bold")),
+            ("HeadBG.TLabel",   _bg,   _fg,  (bf, 11, "bold")),
+            ("Body.TLabel",     _card, _fg2, (bf, 10)),
+            ("BodyBG.TLabel",   _bg,   _fg2, (bf, 10)),
+            ("Val.TLabel",      _card, _accent2, (bf, 11, "bold")),
+            ("ValG.TLabel",     _card, _green, (bf, 11, "bold")),
+            ("ValO.TLabel",     _card, _orange, (bf, 11, "bold")),
+            ("Stat.TLabel",     _card, _fg2, (bf, 10)),
+            ("StatBG.TLabel",   _bg,   _fg2, (bf, 10)),
+            ("Foot.TLabel",     _bg,   _fg3, (bf, 9)),
+            ("Cnt.TLabel",      _card, _fg3, (bf, 9)),
+            ("Big.TLabel",      _card, _fg,  (bf, 26, "bold")),
+            ("BigSub.TLabel",   _card, _fg2, (bf, 11)),
+            ("StatNum.TLabel",  _card, _accent, (bf, 16, "bold")),
+            ("StatUnit.TLabel", _card, _fg3, (bf, 9)),
         ]:
             s.configure(name, background=bg, foreground=fg, font=font_spec)
 
         # Buttons
         for name, bg_c, fg_c, act_bg in [
-            ("Accent.TButton", ACCENT, "#fff", ACCENT2),
-            ("Green.TButton",  GREEN,  "#fff", GREEN2),
-            ("Red.TButton",    RED,    "#fff", RED2),
-            ("Orange.TButton", ORANGE, "#fff", "#ffaa66"),
-            ("Card.TButton",   CARD2,  FG2,   "#252550"),
-            ("Cyan.TButton",   CYAN,   "#fff", "#33dde8"),
+            ("Accent.TButton", _accent, "#fff", _accent2),
+            ("Green.TButton",  _green,  "#fff", _green2),
+            ("Red.TButton",    _red,    "#fff", _red2),
+            ("Orange.TButton", _orange, "#fff", "#ffaa66"),
+            ("Card.TButton",   _card2,  _fg2,   _card_act),
+            ("Cyan.TButton",   _cyan,   "#fff", "#33dde8"),
         ]:
             s.configure(name, background=bg_c, foreground=fg_c,
                         font=(bf, 10, "bold"), padding=(14, 8), borderwidth=0)
-            s.map(name, background=[("active", act_bg), ("disabled", "#2a2a44")],
-                  foreground=[("disabled", "#555")])
+            s.map(name, background=[("active", act_bg), ("disabled", _dis_bg)],
+                  foreground=[("disabled", "#888")])
 
         # Scales
-        s.configure("A.Horizontal.TScale", background=CARD, troughcolor=BORDER,
+        s.configure("A.Horizontal.TScale", background=_card, troughcolor=_border,
                     sliderthickness=16, borderwidth=0)
-        s.configure("G.Horizontal.TScale", background=CARD, troughcolor=BORDER,
+        s.configure("G.Horizontal.TScale", background=_card, troughcolor=_border,
                     sliderthickness=16, borderwidth=0)
-        s.configure("O.Horizontal.TScale", background=CARD, troughcolor=BORDER,
+        s.configure("O.Horizontal.TScale", background=_card, troughcolor=_border,
                     sliderthickness=16, borderwidth=0)
 
         # Progressbar
         s.configure("pointed.Horizontal.TProgressbar",
-                    troughcolor=BORDER, background=ACCENT, thickness=6)
+                    troughcolor=_border, background=_accent, thickness=6)
         s.configure("green.Horizontal.TProgressbar",
-                    troughcolor=BORDER, background=GREEN, thickness=6)
+                    troughcolor=_border, background=_green, thickness=6)
 
         # Combobox
-        s.configure("Dark.TCombobox", fieldbackground=INP_BG, background=CARD,
-                    foreground=FG, selectbackground=SEL_BG,
+        s.configure("Dark.TCombobox", fieldbackground=_inp, background=_card,
+                    foreground=_fg, selectbackground=_sel,
                     font=(bf, 10), padding=6)
         s.map("Dark.TCombobox",
-              fieldbackground=[("readonly", INP_BG)],
-              foreground=[("readonly", FG)])
+              fieldbackground=[("readonly", _inp)],
+              foreground=[("readonly", _fg)])
 
         # Checkbutton
-        s.configure("Dark.TCheckbutton", background=CARD, foreground=FG2,
-                    font=(bf, 10), indicatorcolor=BORDER)
+        s.configure("Dark.TCheckbutton", background=_card, foreground=_fg2,
+                    font=(bf, 10), indicatorcolor=_border)
         s.map("Dark.TCheckbutton",
-              background=[("active", CARD)],
-              indicatorcolor=[("selected", ACCENT)])
+              background=[("active", _card)],
+              indicatorcolor=[("selected", _accent)])
 
         # Radiobutton
-        s.configure("Dark.TRadiobutton", background=CARD, foreground=FG2,
-                    font=(bf, 10), indicatorcolor=BORDER)
+        s.configure("Dark.TRadiobutton", background=_card, foreground=_fg2,
+                    font=(bf, 10), indicatorcolor=_border)
         s.map("Dark.TRadiobutton",
-              background=[("active", CARD)],
-              indicatorcolor=[("selected", ACCENT)])
+              background=[("active", _card)],
+              indicatorcolor=[("selected", _accent)])
 
         # Notebook
-        s.configure("Dark.TNotebook", background=BG, borderwidth=0)
-        s.configure("Dark.TNotebook.Tab", background=CARD, foreground=FG3,
+        s.configure("Dark.TNotebook", background=_bg, borderwidth=0)
+        s.configure("Dark.TNotebook.Tab", background=_card, foreground=_fg3,
                     font=(bf, 10, "bold"), padding=(16, 8))
         s.map("Dark.TNotebook.Tab",
-              background=[("selected", TAB_SEL)],
-              foreground=[("selected", FG)])
+              background=[("selected", _tab)],
+              foreground=[("selected", _fg)])
 
         # Separator
-        s.configure("Dark.TSeparator", background=BORDER)
+        s.configure("Dark.TSeparator", background=_border)
 
         # LabelFrame
-        s.configure("Card.TLabelframe", background=CARD, foreground=FG,
+        s.configure("Card.TLabelframe", background=_card, foreground=_fg,
                     font=(bf, 10, "bold"), borderwidth=1, relief="solid")
-        s.configure("Card.TLabelframe.Label", background=CARD, foreground=FG,
+        s.configure("Card.TLabelframe.Label", background=_card, foreground=_fg,
                     font=(bf, 10, "bold"))
 
     # ---------------------------------------------------------------
@@ -362,6 +422,12 @@ class App:
                                   style="Dark.TCheckbutton",
                                   command=self._toggle_aot)
         aot_btn.pack(side="right")
+
+        # Theme toggle button
+        self._theme_btn = ttk.Button(top, text="Light Theme",
+                                     style="Card.TButton",
+                                     command=self._switch_theme)
+        self._theme_btn.pack(side="right", padx=(0, 8))
 
         # Help button
         help_btn = ttk.Button(top, text="? How to Use", style="Cyan.TButton",
@@ -979,6 +1045,100 @@ class App:
 
     def _toggle_aot(self):
         self.root.attributes("-topmost", self._aot_var.get())
+
+    def _switch_theme(self):
+        """Toggle between dark and light themes."""
+        global _current_theme
+        _current_theme = "light" if _current_theme == "dark" else "dark"
+        _refresh_globals()
+
+        # Update button text
+        next_label = "Light Theme" if _current_theme == "dark" else "Dark Theme"
+        self._theme_btn.configure(text=next_label)
+
+        # Re-apply ttk styles
+        self._setup_styles()
+
+        # Re-configure the root window
+        self.root.configure(bg=_t("BG"))
+
+        # Update all tk.Frame / tk.Label / tk.Text / tk.Entry widgets
+        self._recolor_all(self.root)
+
+        # Update log text tags
+        self._log.tag_configure("info", foreground=_t("FG2"))
+        self._log.tag_configure("success", foreground=_t("GREEN"))
+        self._log.tag_configure("warn", foreground=_t("YELLOW"))
+        self._log.tag_configure("error", foreground=_t("RED"))
+        self._log.tag_configure("accent", foreground=_t("ACCENT2"))
+        self._log.tag_configure("dim", foreground=_t("FG3"))
+        self._log.tag_configure("cyan", foreground=_t("CYAN"))
+
+        # Update context menu
+        self._ctx_menu.configure(bg=_t("CARD"), fg=_t("FG"),
+                                  activebackground=_t("ACCENT"))
+
+        # Update status dot
+        self._dot.configure(bg=_t("CARD"))
+
+    def _recolor_all(self, widget):
+        """Recursively update bg/fg of plain tk widgets to match theme."""
+        cls = widget.winfo_class()
+        try:
+            if cls == "Frame":
+                old_bg = str(widget.cget("bg")).lower()
+                # Map old background to new theme equivalent
+                for key in ("BG", "BG2", "CARD", "CARD2", "INP_BG"):
+                    for theme_name in THEMES:
+                        if old_bg == THEMES[theme_name][key].lower():
+                            widget.configure(bg=_t(key))
+                            break
+                # Update highlight border
+                try:
+                    old_hl = str(widget.cget("highlightbackground")).lower()
+                    for theme_name in THEMES:
+                        if old_hl == THEMES[theme_name]["BORDER"].lower():
+                            widget.configure(highlightbackground=_t("BORDER"))
+                            break
+                except Exception:
+                    pass
+            elif cls in ("Text", "Entry"):
+                widget.configure(bg=_t("INP_BG"), fg=_t("FG"),
+                                 insertbackground=_t("ACCENT"),
+                                 selectbackground=_t("SEL_BG"))
+            elif cls == "Label":
+                old_bg = str(widget.cget("bg")).lower()
+                for key in ("BG", "CARD", "CARD2", "INP_BG"):
+                    for theme_name in THEMES:
+                        if old_bg == THEMES[theme_name][key].lower():
+                            widget.configure(bg=_t(key))
+                            break
+                old_fg = str(widget.cget("fg")).lower()
+                for key in ("FG", "FG2", "FG3", "ACCENT", "ACCENT2", "GREEN",
+                            "RED", "YELLOW", "ORANGE", "CYAN"):
+                    for theme_name in THEMES:
+                        if old_fg == THEMES[theme_name][key].lower():
+                            widget.configure(fg=_t(key))
+                            break
+            elif cls == "Scrollbar":
+                widget.configure(bg=_t("CARD"), troughcolor=_t("INP_BG"))
+            elif cls == "Canvas":
+                old_bg = str(widget.cget("bg")).lower()
+                for key in ("BG", "CARD", "INP_BG"):
+                    for theme_name in THEMES:
+                        if old_bg == THEMES[theme_name][key].lower():
+                            widget.configure(bg=_t(key))
+                            break
+            elif cls == "Spinbox":
+                widget.configure(bg=_t("INP_BG"), fg=_t("FG"),
+                                 buttonbackground=_t("CARD"),
+                                 insertbackground=_t("ACCENT"),
+                                 highlightbackground=_t("BORDER"))
+        except Exception:
+            pass
+        # Recurse into children
+        for child in widget.winfo_children():
+            self._recolor_all(child)
 
     def _show_ctx_menu(self, event):
         try:
