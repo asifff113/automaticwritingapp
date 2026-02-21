@@ -7,6 +7,7 @@ import math
 import os
 import platform
 import random
+import sys
 import threading
 import time
 import tkinter as tk
@@ -30,13 +31,22 @@ if SYSTEM == "Windows":
     _VS, _VC, _VM, _VR, _VF9 = 0x10, 0x11, 0x12, 0x0D, 0x78
 
     class _KBI(ctypes.Structure):
+        """KEYBDINPUT"""
         _fields_ = [("wVk", ctypes.c_ushort), ("wScan", ctypes.c_ushort),
                      ("dwFlags", ctypes.c_ulong), ("time", ctypes.c_ulong),
                      ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong))]
 
+    class _MI(ctypes.Structure):
+        """MOUSEINPUT - needed so the union has the correct size."""
+        _fields_ = [("dx", ctypes.c_long), ("dy", ctypes.c_long),
+                     ("mouseData", ctypes.c_ulong), ("dwFlags", ctypes.c_ulong),
+                     ("time", ctypes.c_ulong),
+                     ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong))]
+
     class _INP(ctypes.Structure):
+        """INPUT struct - union must include MOUSEINPUT for correct sizeof."""
         class _U(ctypes.Union):
-            _fields_ = [("ki", _KBI)]
+            _fields_ = [("ki", _KBI), ("mi", _MI)]
         _anonymous_ = ("u",)
         _fields_ = [("type", ctypes.c_ulong), ("u", _U)]
 
