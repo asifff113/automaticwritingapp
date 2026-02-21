@@ -35,6 +35,21 @@ def main():
         remove_path("dist")
         remove_path(f"{APP_NAME}.spec")
 
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    icon_ico = os.path.join(root_dir, "icon.ico")
+    icon_png = os.path.join(root_dir, "icon.png")
+
+    # Generate icons if missing
+    if not os.path.exists(icon_ico) or not os.path.exists(icon_png):
+        try:
+            from generate_icon import generate_ico_pure_python, generate_png
+            if not os.path.exists(icon_ico):
+                generate_ico_pure_python(icon_ico)
+            if not os.path.exists(icon_png):
+                generate_png(icon_png, 256)
+        except Exception as exc:
+            print(f"Warning: could not generate icons: {exc}")
+
     pyinstaller_cmd = [
         sys.executable,
         "-m",
@@ -45,8 +60,16 @@ def main():
         "--onefile",
         "--name",
         APP_NAME,
-        "app.py",
     ]
+
+    # Per-OS icon handling
+    if system == "Windows" and os.path.exists(icon_ico):
+        pyinstaller_cmd.extend(["--icon", icon_ico])
+        pyinstaller_cmd.extend(["--add-data", f"{icon_ico}{os.pathsep}."])
+    if os.path.exists(icon_png):
+        pyinstaller_cmd.extend(["--add-data", f"{icon_png}{os.pathsep}."])
+
+    pyinstaller_cmd.append("app.py")
     subprocess.run(pyinstaller_cmd, check=True)
 
     binary_name = APP_NAME + (".exe" if system == "Windows" else "")

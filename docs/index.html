@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Automatic Writing Assistant - Type Anything, Automatically</title>
+<meta name="description" content="A beautiful desktop app that automatically types text into any focused input field. Available for Windows, macOS, and Linux.">
+<meta name="theme-color" content="#6c63ff">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d0d1a'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-size='55' font-weight='bold' fill='%236c63ff'%3EW%3C/text%3E%3Crect x='20' y='78' width='60' height='4' rx='2' fill='%237c4dff'/%3E%3C/svg%3E">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#07071a;--bg2:#0d0d26;--card:#12123a;--card-border:#1e1e5a;
+--accent:#6c63ff;--accent2:#7c4dff;--glow:rgba(108,99,255,.25);
+--text:#e0e0f0;--text2:#a0a0c0;--success:#2ecc71;--warning:#f39c12;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent2)}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(7,7,26,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(108,99,255,.1);transition:box-shadow .3s}
+.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.5)}
+.nav-logo{display:flex;align-items:center;gap:.75rem;font-weight:700;font-size:1.15rem;color:var(--text)}
+.nav-logo svg{width:36px;height:36px}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{color:var(--text2);font-size:.9rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{background:var(--accent);color:#fff!important;padding:.5rem 1.25rem;border-radius:8px;font-weight:600;transition:transform .2s,box-shadow .2s}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px var(--glow)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:8rem 2rem 4rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(108,99,255,.15) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none}
+.hero-content{max-width:800px;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.25);padding:.4rem 1rem;border-radius:50px;font-size:.85rem;color:var(--accent);margin-bottom:1.5rem;font-weight:500}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.1;margin-bottom:1.5rem;background:linear-gradient(135deg,#fff 0%,#c0c0ff 50%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.2rem;color:var(--text2);max-width:600px;margin:0 auto 2.5rem;line-height:1.7}
+.hero-buttons{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:.6rem;padding:.85rem 2rem;border-radius:12px;font-weight:600;font-size:1rem;transition:all .25s;cursor:pointer;border:none;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 25px var(--glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px var(--glow);color:#fff}
+.btn-secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.1)}
+.btn-secondary:hover{background:rgba(255,255,255,.1);transform:translateY(-2px);color:var(--text)}
+.hero-stats{display:flex;gap:3rem;justify-content:center;margin-top:3rem}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:1.8rem;font-weight:700;color:var(--accent)}
+.hero-stat .label{font-size:.8rem;color:var(--text2);text-transform:uppercase;letter-spacing:.08em}
+
+/* PREVIEW */
+.preview{padding:2rem 2rem 6rem;position:relative}
+.preview-window{max-width:900px;margin:0 auto;background:var(--card);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 80px rgba(0,0,0,.5)}
+.preview-titlebar{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;background:rgba(0,0,0,.3);border-bottom:1px solid var(--card-border)}
+.preview-dot{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.preview-dot:nth-child(2){background:#febc2e}
+.preview-dot:nth-child(3){background:#28c840}
+.preview-title{flex:1;text-align:center;font-size:.8rem;color:var(--text2)}
+.preview-body{padding:2rem;position:relative;min-height:320px;display:flex;align-items:center;justify-content:center}
+.typing-demo{font-family:'Courier New',Courier,monospace;font-size:1.1rem;color:var(--text);max-width:100%;overflow:hidden}
+.typing-demo .cursor{display:inline-block;width:2px;height:1.2em;background:var(--accent);animation:blink 1s infinite;vertical-align:text-bottom;margin-left:2px}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.typing-demo .typed{color:var(--accent)}
+
+/* FEATURES */
+.features{padding:6rem 2rem;max-width:1200px;margin:0 auto}
+.section-label{display:inline-block;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.75rem}
+.section-title{font-size:clamp(2rem,4vw,3rem);font-weight:700;margin-bottom:1rem}
+.section-desc{color:var(--text2);font-size:1.1rem;max-width:600px;margin-bottom:3rem}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+.feature-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:2rem;transition:all .3s}
+.feature-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 12px 40px rgba(108,99,255,.1)}
+.feature-icon{width:48px;height:48px;border-radius:12px;background:rgba(108,99,255,.12);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;font-size:1.4rem}
+.feature-card h3{font-size:1.15rem;font-weight:600;margin-bottom:.5rem}
+.feature-card p{color:var(--text2);font-size:.92rem;line-height:1.6}
+
+/* HOW IT WORKS */
+.how-it-works{padding:6rem 2rem;background:var(--bg2)}
+.how-inner{max-width:1000px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;margin-top:3rem}
+.step{text-align:center;padding:2rem 1.5rem;position:relative}
+.step-num{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;margin:0 auto 1.25rem;color:#fff}
+.step h3{font-size:1.1rem;margin-bottom:.5rem}
+.step p{color:var(--text2);font-size:.9rem}
+
+/* PLATFORMS */
+.platforms{padding:6rem 2rem;max-width:1000px;margin:0 auto;text-align:center}
+.platform-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-top:3rem}
+.platform-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:2.5rem 2rem;transition:all .3s}
+.platform-card:hover{border-color:var(--accent);transform:translateY(-4px)}
+.platform-card .os-icon{font-size:2.5rem;margin-bottom:1rem}
+.platform-card h3{font-size:1.2rem;margin-bottom:.5rem}
+.platform-card p{color:var(--text2);font-size:.85rem;margin-bottom:1.5rem}
+.platform-card .btn{width:100%;justify-content:center;font-size:.9rem;padding:.75rem}
+.platform-card .size{display:block;font-size:.75rem;color:var(--text2);margin-top:.5rem}
+
+/* CTA */
+.cta-section{padding:6rem 2rem;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(108,99,255,.1) 0%,transparent 70%);bottom:-200px;left:50%;transform:translateX(-50%);pointer-events:none}
+.cta-section h2{font-size:clamp(2rem,4vw,3rem);font-weight:700;margin-bottom:1rem}
+.cta-section p{color:var(--text2);font-size:1.1rem;max-width:500px;margin:0 auto 2rem}
+
+/* FOOTER */
+.footer{padding:3rem 2rem;border-top:1px solid var(--card-border);text-align:center}
+.footer-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-left{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.95rem}
+.footer-left svg{width:28px;height:28px}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{color:var(--text2);font-size:.85rem}
+.footer-links a:hover{color:var(--text)}
+.footer-copy{width:100%;text-align:center;font-size:.8rem;color:var(--text2);margin-top:1rem;opacity:.6}
+
+/* OS DETECTION HIGHLIGHT */
+.platform-card.recommended{border-color:var(--accent);box-shadow:0 0 30px var(--glow)}
+.platform-card.recommended::before{content:'Recommended for you';display:block;position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:.7rem;font-weight:600;padding:.25rem .75rem;border-radius:50px;white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
+.platform-card{position:relative}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.nav-links{display:none}
+.hero-stats{gap:1.5rem}
+.hero-stat .num{font-size:1.4rem}
+.features-grid{grid-template-columns:1fr}
+.steps{grid-template-columns:1fr}
+.platform-cards{grid-template-columns:1fr;max-width:400px;margin-left:auto;margin-right:auto}
+.footer-inner{justify-content:center;text-align:center}
+}
+
+/* ANIMATIONS */
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-logo">
+    <svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="20" fill="#0d0d1a"/><text x="50" y="68" text-anchor="middle" font-size="55" font-weight="bold" fill="#6c63ff">W</text><rect x="20" y="78" width="60" height="4" rx="2" fill="#7c4dff"/></svg>
+    AWA
+  </div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#download">Download</a>
+    <a href="https://github.com/asifff113/automaticwritingapp" target="_blank">GitHub</a>
+    <a href="#download" class="nav-cta">Download Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> Free &amp; Open Source</div>
+    <h1>Type Anything,<br>Automatically</h1>
+    <p>A beautiful desktop app that simulates natural keyboard typing into any focused input field. Paste your text, set your speed, and let it type for you.</p>
+    <div class="hero-buttons">
+      <a href="#download" class="btn btn-primary">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download for Free
+      </a>
+      <a href="https://github.com/asifff113/automaticwritingapp" target="_blank" class="btn btn-secondary">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        View Source
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">3</div><div class="label">Platforms</div></div>
+      <div class="hero-stat"><div class="num">3</div><div class="label">Typing Modes</div></div>
+      <div class="hero-stat"><div class="num">0</div><div class="label">Dependencies*</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PREVIEW -->
+<section class="preview fade-in">
+  <div class="preview-window">
+    <div class="preview-titlebar">
+      <span class="preview-dot"></span>
+      <span class="preview-dot"></span>
+      <span class="preview-dot"></span>
+      <span class="preview-title">Automatic Writing Assistant v2.0</span>
+    </div>
+    <div class="preview-body">
+      <div class="typing-demo" id="typingDemo"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="fade-in">
+    <span class="section-label">Features</span>
+    <h2 class="section-title">Everything You Need</h2>
+    <p class="section-desc">Packed with features to make automated typing feel natural and effortless.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#9000;</div>
+      <h3>Natural Typing Simulation</h3>
+      <p>Three typing modes - Constant, Human-like with punctuation pauses, and Burst mode with natural rhythm patterns.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#9881;</div>
+      <h3>Fully Configurable</h3>
+      <p>Adjust speed (5-300ms), countdown (1-30s), randomness (0-100%), repeat count, and much more from the Settings tab.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#128190;</div>
+      <h3>Preset System</h3>
+      <p>Save frequently-used text as named presets. Load, overwrite, or delete them anytime. Stored locally in JSON.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#9209;</div>
+      <h3>Pause &amp; Resume</h3>
+      <p>Full control during typing - pause, resume, or emergency stop with F9. Never lose track of where you are.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#128200;</div>
+      <h3>Live Progress Log</h3>
+      <p>Color-coded real-time log with timestamps, progress bar, elapsed time, and ETA. Know exactly what's happening.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#127912;</div>
+      <h3>Beautiful Dark UI</h3>
+      <p>Modern dark-themed interface with tabbed layout. Keyboard shortcuts, right-click menus, and pin-on-top toggle.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#128268;</div>
+      <h3>Zero Dependencies</h3>
+      <p>On Windows, uses native SendInput API - no extra packages needed. Just download and run. *macOS/Linux use pynput.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#128187;</div>
+      <h3>Cross-Platform</h3>
+      <p>Works on Windows, macOS, and Linux. Pre-built binaries available for all three platforms.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">&#128196;</div>
+      <h3>File I/O &amp; Clipboard</h3>
+      <p>Open .txt files, save your text, paste from clipboard. Full editor with undo/redo and context menu.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="how-it-works">
+  <div class="how-inner">
+    <div class="fade-in" style="text-align:center">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-title">Up and Running in Seconds</h2>
+    </div>
+    <div class="steps">
+      <div class="step fade-in">
+        <div class="step-num">1</div>
+        <h3>Paste Your Text</h3>
+        <p>Type, paste from clipboard, or open a text file in the Editor tab.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">2</div>
+        <h3>Configure Settings</h3>
+        <p>Choose typing mode, speed, countdown timer, and any extra options.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">3</div>
+        <h3>Click Start</h3>
+        <p>Hit "Start Typing" and quickly switch to your target input field.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">4</div>
+        <h3>Watch It Type</h3>
+        <p>The app types your text naturally. Monitor progress in the Live Log.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section class="platforms" id="download">
+  <div class="fade-in">
+    <span class="section-label">Download</span>
+    <h2 class="section-title">Get It Now</h2>
+    <p class="section-desc" style="margin-left:auto;margin-right:auto">Free, open-source, and ready to use. Pick your platform.</p>
+  </div>
+  <div class="platform-cards">
+    <div class="platform-card fade-in" data-os="Windows">
+      <div class="os-icon">&#128187;</div>
+      <h3>Windows</h3>
+      <p>Windows 10 / 11<br>64-bit, standalone .exe</p>
+      <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows.zip" class="btn btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download .zip
+      </a>
+      <span class="size">~12 MB &bull; No install needed</span>
+    </div>
+    <div class="platform-card fade-in" data-os="macOS">
+      <div class="os-icon">&#127823;</div>
+      <h3>macOS</h3>
+      <p>macOS 12+<br>Universal binary</p>
+      <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-macos.zip" class="btn btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download .zip
+      </a>
+      <span class="size">Requires Accessibility permission</span>
+    </div>
+    <div class="platform-card fade-in" data-os="Linux">
+      <div class="os-icon">&#128039;</div>
+      <h3>Linux</h3>
+      <p>Ubuntu, Fedora, Arch<br>x86_64 binary</p>
+      <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-linux.zip" class="btn btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download .zip
+      </a>
+      <span class="size">Requires desktop session</span>
+    </div>
+  </div>
+  <p style="margin-top:2rem;color:var(--text2);font-size:.85rem">
+    Or build from source:
+    <code style="background:rgba(255,255,255,.06);padding:.2rem .5rem;border-radius:4px;font-size:.8rem">python app.py</code>
+    &mdash;
+    <a href="https://github.com/asifff113/automaticwritingapp#run" target="_blank">See instructions</a>
+  </p>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="fade-in">
+    <h2>Ready to automate your typing?</h2>
+    <p>Download for free and start typing smarter today. Open source, no sign-up required.</p>
+    <a href="#download" class="btn btn-primary" style="font-size:1.1rem;padding:1rem 2.5rem">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Now
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="20" fill="#0d0d1a"/><text x="50" y="68" text-anchor="middle" font-size="55" font-weight="bold" fill="#6c63ff">W</text><rect x="20" y="78" width="60" height="4" rx="2" fill="#7c4dff"/></svg>
+      Automatic Writing Assistant
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/asifff113/automaticwritingapp" target="_blank">GitHub</a>
+      <a href="https://github.com/asifff113/automaticwritingapp/releases" target="_blank">Releases</a>
+      <a href="https://github.com/asifff113/automaticwritingapp/issues" target="_blank">Report Bug</a>
+    </div>
+    <div class="footer-copy">
+      Made with care. Free and open-source software.
+    </div>
+  </div>
+</footer>
+
+<script>
+// Scroll nav shadow
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Fade-in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Typing demo animation
+const demoLines = [
+  'Hello! This text is being typed automatically...',
+  'You can set the speed, mode, and countdown.',
+  'Human-like mode adds natural pauses at punctuation.',
+  'Press F9 anytime to emergency stop.',
+  'Save your text as presets for quick reuse!',
+];
+const demoEl = document.getElementById('typingDemo');
+let lineIdx = 0, charIdx = 0, deleting = false, pauseTimer = 0;
+
+function typeLoop() {
+  const line = demoLines[lineIdx];
+  if (!deleting) {
+    if (charIdx <= line.length) {
+      demoEl.innerHTML = '<span class="typed">' + line.substring(0, charIdx) + '</span><span class="cursor"></span>';
+      charIdx++;
+      const delay = 30 + Math.random() * 60;
+      setTimeout(typeLoop, charIdx === line.length + 1 ? 2000 : delay);
+    } else {
+      deleting = true;
+      setTimeout(typeLoop, 50);
+    }
+  } else {
+    if (charIdx > 0) {
+      charIdx--;
+      demoEl.innerHTML = '<span class="typed">' + line.substring(0, charIdx) + '</span><span class="cursor"></span>';
+      setTimeout(typeLoop, 15);
+    } else {
+      deleting = false;
+      lineIdx = (lineIdx + 1) % demoLines.length;
+      setTimeout(typeLoop, 400);
+    }
+  }
+}
+typeLoop();
+
+// Auto-detect OS and highlight recommended platform
+(function() {
+  const ua = navigator.userAgent;
+  let os = 'Windows';
+  if (/Mac/i.test(ua)) os = 'macOS';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  const cards = document.querySelectorAll('.platform-card');
+  cards.forEach(card => {
+    if (card.dataset.os === os) card.classList.add('recommended');
+  });
+})();
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>

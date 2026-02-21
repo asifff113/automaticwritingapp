@@ -1,15 +1,57 @@
 # Automatic Writing Assistant
 
-Desktop app that lets a user paste text, then automatically type it into the currently focused field after a countdown.
+A beautiful desktop app that lets you paste text and automatically type it into any focused input field after a countdown. Built with pure Python/tkinter - zero extra dependencies on Windows.
 
-## What it does
+**[Download from the official website](https://asifff113.github.io/automaticwritingapp/)** | [GitHub Releases](https://github.com/asifff113/automaticwritingapp/releases)
 
-- Accepts pasted text in the app window.
-- Starts typing after a configurable countdown so you can switch to your target window.
-- Supports configurable typing speed.
-- Lets you stop typing via:
-  - `Stop` button in the app
-  - `F9` emergency stop while typing (when global hotkeys are available)
+## Features
+
+**Core**
+- Paste or type text, then simulate natural keyboard input into any focused field
+- Configurable countdown timer (1-30s) to switch to target window
+- Adjustable typing speed (5-300ms per character)
+- Emergency stop via F9 hotkey or Stop button
+- Pause / Resume typing mid-session
+
+**Typing Modes**
+- **Constant** - Fixed delay between characters
+- **Human-like** - Random speed variation with longer pauses at punctuation (`.!?,;:` and newlines)
+- **Burst** - Type in fast bursts of 3-8 characters with pauses in between
+- Configurable randomness slider (0-100%) for natural feel
+
+**Editor**
+- Full text editor with undo/redo, cut/copy/paste
+- Right-click context menu
+- Open text from `.txt` files (Ctrl+O)
+- Save text to files (Ctrl+S)
+- Paste from clipboard button
+- Live character / word / line count
+- Estimated typing time display
+
+**Presets**
+- Save frequently-used text as named presets
+- Load, overwrite, and delete presets
+- Presets stored in `presets.json` alongside the app
+
+**Options**
+- Auto-minimize window before typing starts
+- Restore window after typing completes
+- Sound notification on completion (Windows)
+- Skip empty lines
+- Trim trailing whitespace per line
+- Repeat typing 1-99 times
+- Pin window always-on-top toggle
+
+**Live Log**
+- Real-time color-coded typing log with timestamps
+- Shows mode, speed, progress, and errors
+- Elapsed time and ETA displayed during typing
+
+**UI**
+- Dark themed interface with tabbed layout (Editor / Settings / Live Log)
+- Keyboard shortcuts: Ctrl+O (open), Ctrl+S (save), Ctrl+Enter (start)
+- Progress bar with percentage display
+- Cross-platform: Windows, macOS, Linux
 
 ## Requirements
 
@@ -89,13 +131,13 @@ Workflow file: `.github/workflows/build-and-release.yml`
 
 ## Usage
 
-1. Paste your text into the app.
-2. Set:
-   - `Start countdown (sec)` (example: `5`)
-   - `Delay per character (sec)` (example: `0.03`)
-3. Click `Start Typing`.
-4. Immediately focus the input field where you want text to be typed.
-5. Press `F9` to stop if available, otherwise use the app `Stop` button.
+1. Launch the app: `python app.py`
+2. **Editor tab**: Paste or type your text, or open a `.txt` file
+3. **Settings tab**: Choose typing mode, speed, countdown, and options
+4. Click **Start Typing** (or press Ctrl+Enter)
+5. Quickly switch to the target input field during the countdown
+6. Watch the **Live Log** tab for real-time progress
+7. Press **F9** to emergency-stop, or use **Pause** / **Stop** buttons
 
 ## Important
 
