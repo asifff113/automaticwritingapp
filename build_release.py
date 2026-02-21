@@ -88,10 +88,10 @@ def main():
     print(f"Binary: {binary_path}")
     print(f"Zip: {zip_path}")
 
-    # On Windows, also create a direct-download .exe with a clean name
+    # On Windows, also create a direct-download portable .exe with a clean name
     if system == "Windows":
         direct_exe = os.path.join("dist",
-                                  f"{APP_NAME}-windows-installer.exe")
+                                  f"{APP_NAME}-windows-portable.exe")
         shutil.copy2(binary_path, direct_exe)
         print(f"Direct download: {direct_exe}")
 

@@ -247,7 +247,7 @@ THEMES = {
     },
 }
 
-_current_theme = "dark"
+_current_theme = "light"
 
 
 def _t(key):
@@ -382,7 +382,7 @@ class AppSettings:
     """Persist user preferences between sessions."""
 
     DEFAULTS = {
-        "theme": "dark",
+        "theme": "light",
         "countdown": 5,
         "delay": 30,
         "randomness": 40,
