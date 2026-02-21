@@ -57,6 +57,7 @@ if SYSTEM == "Windows":
 class TypingBackend:
     hotkey_label = "F9"
     hotkey_supported = False
+    shift_enter = True  # Use Shift+Enter for newlines (chat apps)
     def type_char(self, ch): raise NotImplementedError
     def stop_requested(self): return False
     def shutdown(self): pass
@@ -75,7 +76,14 @@ class WindowsBackend(TypingBackend):
 
     def type_char(self, ch):
         if ch == "\n":
-            self._tap(_VR); return
+            if self.shift_enter:
+                # Shift+Enter = newline without sending in chat apps
+                self._send(vk=_VS)          # Shift down
+                self._tap(_VR)              # Enter tap
+                self._send(vk=_VS, flags=_KU)  # Shift up
+            else:
+                self._tap(_VR)
+            return
         m = _u32.VkKeyScanW(ord(ch))
         if m in (-1, 0xFFFF):
             c = ord(ch)
@@ -109,8 +117,14 @@ class PynputBackend(TypingBackend):
 
     def type_char(self, ch):
         if ch == "\n":
-            self._ctrl.press(self._kb.Key.enter)
-            self._ctrl.release(self._kb.Key.enter)
+            if self.shift_enter:
+                self._ctrl.press(self._kb.Key.shift)
+                self._ctrl.press(self._kb.Key.enter)
+                self._ctrl.release(self._kb.Key.enter)
+                self._ctrl.release(self._kb.Key.shift)
+            else:
+                self._ctrl.press(self._kb.Key.enter)
+                self._ctrl.release(self._kb.Key.enter)
         else:
             self._ctrl.type(ch)
 
@@ -622,6 +636,11 @@ class App:
         self._skip_nl_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(oc1, text="Skip empty lines",
                         variable=self._skip_nl_var,
+                        style="Dark.TCheckbutton").pack(anchor="w", pady=2)
+
+        self._shift_enter_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(oc1, text="Shift+Enter for newlines (chat apps)",
+                        variable=self._shift_enter_var,
                         style="Dark.TCheckbutton").pack(anchor="w", pady=2)
 
         # Column 2
@@ -1199,11 +1218,18 @@ class App:
         self._pause_btn.state(["!disabled"])
         self._set_progress(0)
 
+        # Apply Shift+Enter setting to backend
+        self.backend.shift_enter = self._shift_enter_var.get()
+
         self._log_msg("Starting typing session", "accent")
         self._log_msg("  Mode: " + mode + " | Delay: " + str(delay_ms)
                       + "ms | Randomness: " + str(int(randomness * 100))
                       + "% | Repeat: " + str(repeat) + "x", "dim")
         self._log_msg("  Text length: " + str(len(text)) + " chars", "dim")
+        if self.backend.shift_enter:
+            self._log_msg("  Newlines: Shift+Enter (chat-app safe)", "dim")
+        else:
+            self._log_msg("  Newlines: plain Enter", "dim")
 
         self.worker = threading.Thread(
             target=self._type_job,
