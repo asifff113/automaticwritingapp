@@ -88,6 +88,40 @@ def main():
     print(f"Binary: {binary_path}")
     print(f"Zip: {zip_path}")
 
+    # Build Windows installer with Inno Setup if available
+    if system == "Windows":
+        iss_path = os.path.join(root_dir, "installer.iss")
+        if os.path.exists(iss_path):
+            iscc = _find_inno_setup()
+            if iscc:
+                print(f"Building installer with: {iscc}")
+                subprocess.run([iscc, iss_path], check=True)
+                setup_path = os.path.join("dist", f"{APP_NAME}-Setup.exe")
+                if os.path.exists(setup_path):
+                    print(f"Installer: {setup_path}")
+                else:
+                    print("Warning: Installer build finished but .exe not found")
+            else:
+                print("Inno Setup not found - skipping installer build")
+
+
+def _find_inno_setup():
+    """Find Inno Setup compiler (iscc.exe) on the system."""
+    # Check PATH first
+    for name in ("iscc", "iscc.exe", "ISCC.exe"):
+        path = shutil.which(name)
+        if path:
+            return path
+    # Check common install locations
+    for prog in (os.environ.get("ProgramFiles(x86)", ""),
+                 os.environ.get("ProgramFiles", ""),
+                 r"C:\Program Files (x86)",
+                 r"C:\Program Files"):
+        candidate = os.path.join(prog, "Inno Setup 6", "ISCC.exe")
+        if os.path.exists(candidate):
+            return candidate
+    return None
+
 
 if __name__ == "__main__":
     main()
