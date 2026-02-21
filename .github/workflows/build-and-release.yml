@@ -33,10 +33,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-tk
 
-      - name: Install Inno Setup (Windows)
-        if: runner.os == 'Windows'
-        run: choco install innosetup -y --no-progress
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -50,9 +46,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AutomaticWritingAssistant-${{ runner.os }}
-          path: |
-            dist/AutomaticWritingAssistant-*.zip
-            dist/AutomaticWritingAssistant-Setup.exe
+          path: dist/AutomaticWritingAssistant-*
           if-no-files-found: error
 
   release:
@@ -70,6 +64,4 @@ jobs:
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            release-artifacts/**/AutomaticWritingAssistant-*.zip
-            release-artifacts/**/AutomaticWritingAssistant-Setup.exe
+          files: release-artifacts/**/AutomaticWritingAssistant-*

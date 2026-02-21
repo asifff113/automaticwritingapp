@@ -88,21 +88,29 @@ def main():
     print(f"Binary: {binary_path}")
     print(f"Zip: {zip_path}")
 
-    # Build Windows installer with Inno Setup if available
+    # On Windows, also create a direct-download .exe with a clean name
+    if system == "Windows":
+        direct_exe = os.path.join("dist",
+                                  f"{APP_NAME}-windows-installer.exe")
+        shutil.copy2(binary_path, direct_exe)
+        print(f"Direct download: {direct_exe}")
+
+    # Build Windows installer with Inno Setup if available (optional)
     if system == "Windows":
         iss_path = os.path.join(root_dir, "installer.iss")
         if os.path.exists(iss_path):
             iscc = _find_inno_setup()
             if iscc:
                 print(f"Building installer with: {iscc}")
-                subprocess.run([iscc, iss_path], check=True)
-                setup_path = os.path.join("dist", f"{APP_NAME}-Setup.exe")
-                if os.path.exists(setup_path):
-                    print(f"Installer: {setup_path}")
-                else:
-                    print("Warning: Installer build finished but .exe not found")
+                try:
+                    subprocess.run([iscc, iss_path], check=True)
+                    setup_path = os.path.join("dist", f"{APP_NAME}-Setup.exe")
+                    if os.path.exists(setup_path):
+                        print(f"Installer: {setup_path}")
+                except Exception as exc:
+                    print(f"Inno Setup failed (optional): {exc}")
             else:
-                print("Inno Setup not found - skipping installer build")
+                print("Inno Setup not found - skipping installer (optional)")
 
 
 def _find_inno_setup():
