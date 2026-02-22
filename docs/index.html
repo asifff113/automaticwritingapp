@@ -488,7 +488,7 @@ a:hover{color:#9b8fff}
     </div>
 
     <!-- MACOS quick-start -->
-    <div class="qs-os-group" id="qsMac" style="display:none">
+    <div class="qs-os-group" id="qsMac">
       <div class="qs-os-label"><span class="plat-icon">&#127823;</span> macOS</div>
       <div class="qs-step">
         <div class="qs-num">1</div>
@@ -525,7 +525,7 @@ a:hover{color:#9b8fff}
     </div>
 
     <!-- LINUX quick-start -->
-    <div class="qs-os-group" id="qsLinux" style="display:none">
+    <div class="qs-os-group" id="qsLinux">
       <div class="qs-os-label"><span class="plat-icon">&#128039;</span> Linux</div>
       <div class="qs-step">
         <div class="qs-num">1</div>
@@ -555,10 +555,6 @@ a:hover{color:#9b8fff}
       </div>
     </div>
 
-    <!-- Show all platforms link -->
-    <p style="text-align:center;margin-top:1rem">
-      <a href="#" id="showAllPlatforms" style="font-size:.82rem;color:var(--text3)">Show instructions for all platforms</a>
-    </p>
   </div>
 
   <p class="download-note">
@@ -683,21 +679,14 @@ typeLoop();
     heroText.textContent = 'Download for Windows';
   }
 
-  // Show the appropriate quick-start section
+  // Reorder quick-start: detected OS first, others follow
+  const qs = document.getElementById('quickstart');
   const qsWin = document.getElementById('qsWindows');
   const qsMac = document.getElementById('qsMac');
   const qsLinux = document.getElementById('qsLinux');
-  if (os === 'macOS') { qsWin.style.display = 'none'; qsMac.style.display = ''; }
-  else if (os === 'Linux') { qsWin.style.display = 'none'; qsLinux.style.display = ''; }
-
-  // "Show all platforms" toggle
-  document.getElementById('showAllPlatforms').addEventListener('click', function(e) {
-    e.preventDefault();
-    qsWin.style.display = '';
-    qsMac.style.display = '';
-    qsLinux.style.display = '';
-    this.style.display = 'none';
-  });
+  const qsTitle = qs.querySelector('h3');
+  if (os === 'macOS') { qs.insertBefore(qsMac, qsTitle.nextSibling); }
+  else if (os === 'Linux') { qs.insertBefore(qsLinux, qsTitle.nextSibling); }
 })();
 
 // --- Smooth scroll ---
