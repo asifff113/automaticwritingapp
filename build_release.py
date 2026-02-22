@@ -95,7 +95,7 @@ def main():
         shutil.copy2(binary_path, direct_exe)
         print(f"Direct download: {direct_exe}")
 
-    # Build Windows installer with Inno Setup if available (optional)
+    # Build Windows installer with Inno Setup if available
     if system == "Windows":
         iss_path = os.path.join(root_dir, "installer.iss")
         if os.path.exists(iss_path):
@@ -104,13 +104,16 @@ def main():
                 print(f"Building installer with: {iscc}")
                 try:
                     subprocess.run([iscc, iss_path], check=True)
-                    setup_path = os.path.join("dist", f"{APP_NAME}-Setup.exe")
+                    setup_path = os.path.join("dist",
+                                              f"{APP_NAME}-windows-setup.exe")
                     if os.path.exists(setup_path):
                         print(f"Installer: {setup_path}")
+                    else:
+                        print("Warning: Installer was not found after build")
                 except Exception as exc:
-                    print(f"Inno Setup failed (optional): {exc}")
+                    print(f"Inno Setup failed: {exc}")
             else:
-                print("Inno Setup not found - skipping installer (optional)")
+                print("Inno Setup not found - skipping installer")
 
 
 def _find_inno_setup():

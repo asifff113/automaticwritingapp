@@ -1,8 +1,8 @@
 ; Inno Setup script for Automatic Writing Assistant
-; Produces a proper Windows installer (Setup.exe)
+; Produces a proper Windows installer (Setup.exe) with Next/Next/Accept wizard
 
 #define MyAppName "Automatic Writing Assistant"
-#define MyAppVersion "2.0.0"
+#define MyAppVersion "3.0.0"
 #define MyAppPublisher "asifff113"
 #define MyAppURL "https://asifff113.github.io/automaticwritingapp/"
 #define MyAppExeName "AutomaticWritingAssistant.exe"
@@ -11,14 +11,16 @@
 AppId={{E8A3F2B1-7C4D-4F6A-9B2E-1D5A8C3F7E9B}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
+LicenseFile=LICENSE
 DisableProgramGroupPage=yes
 OutputDir=dist
-OutputBaseFilename=AutomaticWritingAssistant-Setup
+OutputBaseFilename=AutomaticWritingAssistant-windows-setup
 SetupIconFile=icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma2/ultra64
@@ -42,6 +44,7 @@ Name: "startmenu"; Description: "Create a Start Menu shortcut"; GroupDescription
 
 [Files]
 Source: "dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

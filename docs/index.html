@@ -383,23 +383,24 @@ a:hover{color:#9b8fff}
   <div class="download-hero fade-in">
     <span class="section-label">Download</span>
     <h2 class="section-title">Get Automatic Writing Assistant</h2>
-    <p class="section-desc" style="margin-left:auto;margin-right:auto">Free, open-source, and portable. No installation needed &mdash; just download and run.</p>
+    <p class="section-desc" style="margin-left:auto;margin-right:auto">Free and open-source. Windows installer with full setup wizard, or portable downloads for all platforms.</p>
   </div>
 
   <!-- Primary download (auto-detected OS) -->
   <div class="download-primary fade-in" id="downloadPrimary">
     <div class="os-icon" id="primaryIcon">&#128187;</div>
     <h3 id="primaryTitle">Download for Windows</h3>
-    <p class="os-desc" id="primaryDesc">Windows 10/11 &bull; 64-bit &bull; Portable executable</p>
-    <a id="primaryLink" href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-portable.exe" class="btn btn-primary">
+    <p class="os-desc" id="primaryDesc">Windows 10/11 &bull; 64-bit &bull; Installer with setup wizard</p>
+    <a id="primaryLink" href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-setup.exe" class="btn btn-primary">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span id="primaryBtnText">Download .exe</span>
+      <span id="primaryBtnText">Download Installer</span>
     </a>
     <div class="download-meta">
       <span id="primarySize">~12 MB</span>
-      <span>Portable &bull; No install needed</span>
+      <span>Setup wizard &bull; Desktop shortcut</span>
       <span>v3.0</span>
     </div>
+    <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-portable.exe" style="display:inline-block;margin-top:.6rem;font-size:.78rem;color:var(--text3)">or download portable .exe (no install needed)</a>
   </div>
 
   <!-- Other platforms -->
@@ -426,7 +427,7 @@ a:hover{color:#9b8fff}
       <div class="os-icon">&#128187;</div>
       <h4>Windows</h4>
       <p>Windows 10/11 &bull; 64-bit</p>
-      <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-portable.exe" class="btn">
+      <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-setup.exe" class="btn">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download .exe
       </a>
@@ -439,11 +440,13 @@ a:hover{color:#9b8fff}
       <summary><span class="plat-icon">&#128187;</span> Windows setup instructions</summary>
       <div class="inst-body">
         <ol>
-          <li>Download the <strong>.exe</strong> file above.</li>
+          <li>Download the <strong>installer (.exe)</strong> above.</li>
           <li>Double-click to run. Windows may show a SmartScreen warning &mdash; click <em>"More info"</em> then <em>"Run anyway"</em>.</li>
-          <li>That's it! The app is fully portable. No installation required.</li>
+          <li>Follow the setup wizard: <strong>Next &rarr; Accept License &rarr; Choose folder &rarr; Install</strong>.</li>
+          <li>A desktop shortcut and Start Menu entry are created automatically.</li>
+          <li>Launch the app from the desktop or Start Menu. To uninstall, use <em>Add/Remove Programs</em>.</li>
         </ol>
-        <p style="margin-top:.5rem;color:var(--text3)">Tip: Place the .exe anywhere you like, or pin it to your taskbar for quick access.</p>
+        <p style="margin-top:.5rem;color:var(--text3)">Prefer no install? Use the <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-portable.exe" style="color:var(--accent2)">portable .exe</a> instead &mdash; just download and run, no setup needed.</p>
       </div>
     </details>
     <details>
@@ -590,7 +593,7 @@ typeLoop();
     altLinux.style.display = 'none';
     altWin.style.display = '';
   } else {
-    // Windows default
+    // Windows default - installer as primary
     heroText.textContent = 'Download for Windows';
   }
 })();
