@@ -450,27 +450,50 @@ a:hover{color:#9b8fff}
       </div>
     </details>
     <details>
-      <summary><span class="plat-icon">&#127823;</span> macOS setup instructions</summary>
+      <summary><span class="plat-icon">&#127823;</span> macOS install + use instructions</summary>
       <div class="inst-body">
         <ol>
           <li>Download the <strong>.zip</strong> file and double-click to extract.</li>
           <li>Right-click the extracted <strong>AutomaticWritingAssistant</strong> binary and choose <em>"Open"</em>.</li>
           <li>macOS will ask to confirm since the app isn't from the App Store &mdash; click <em>"Open"</em>.</li>
           <li>Grant <strong>Accessibility permission</strong> when prompted (System Settings &rarr; Privacy &amp; Security &rarr; Accessibility).</li>
+          <li>Use the app:
+            <ol>
+              <li>Paste your text in the editor.</li>
+              <li>Set countdown and typing speed.</li>
+              <li>Click <strong>Start Typing</strong>.</li>
+              <li>Switch to the target website/app input field before countdown ends.</li>
+              <li>Press <strong>F9</strong> (if available) or click <strong>Stop</strong> in the app.</li>
+            </ol>
+          </li>
         </ol>
         <p style="margin-top:.5rem;color:var(--text3)">Or from Terminal:</p>
         <code class="cmd">chmod +x AutomaticWritingAssistant &amp;&amp; ./AutomaticWritingAssistant</code>
+        <p style="margin-top:.75rem;color:var(--text3)">Run from source (advanced):</p>
+        <code class="cmd">python3 -m pip install -r requirements.txt &amp;&amp; python3 app.py</code>
       </div>
     </details>
     <details>
-      <summary><span class="plat-icon">&#128039;</span> Linux setup instructions</summary>
+      <summary><span class="plat-icon">&#128039;</span> Linux install + use instructions</summary>
       <div class="inst-body">
         <ol>
           <li>Download the <strong>.zip</strong> file and extract it.</li>
           <li>Make the binary executable and run it:</li>
+          <li>If prompted by your desktop environment, allow the app to run.</li>
+          <li>Use the app:
+            <ol>
+              <li>Paste your text in the editor.</li>
+              <li>Set countdown and typing speed.</li>
+              <li>Click <strong>Start Typing</strong>.</li>
+              <li>Focus the target website/app input field before countdown ends.</li>
+              <li>Stop with <strong>F9</strong> (if available) or the in-app <strong>Stop</strong> button.</li>
+            </ol>
+          </li>
         </ol>
         <code class="cmd">chmod +x AutomaticWritingAssistant &amp;&amp; ./AutomaticWritingAssistant</code>
         <p style="margin-top:.5rem;color:var(--text3)">Requires a desktop session (X11 or Wayland) with input access.</p>
+        <p style="margin-top:.75rem;color:var(--text3)">Run from source (advanced):</p>
+        <code class="cmd">python3 -m pip install -r requirements.txt &amp;&amp; python3 app.py</code>
       </div>
     </details>
   </div>
