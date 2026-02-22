@@ -35,10 +35,7 @@ jobs:
 
       - name: Install Inno Setup (Windows)
         if: runner.os == 'Windows'
-        run: |
-          choco install innosetup -y --no-progress
-          echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: pwsh
+        run: choco install innosetup -y --no-progress
 
       - name: Install dependencies
         run: |
@@ -48,6 +45,18 @@ jobs:
 
       - name: Build release artifacts
         run: python build_release.py --clean
+
+      - name: Build Windows installer (Inno Setup)
+        if: runner.os == 'Windows'
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+          if (Test-Path "dist\AutomaticWritingAssistant-windows-setup.exe") {
+            Write-Host "Installer built successfully"
+          } else {
+            Write-Host "ERROR: Installer not found after build"
+            exit 1
+          }
+        shell: pwsh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
