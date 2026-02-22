@@ -24,7 +24,13 @@ def remove_path(path):
 def main():
     parser = argparse.ArgumentParser(description="Build release artifacts with PyInstaller.")
     parser.add_argument("--clean", action="store_true", help="Remove prior build artifacts")
+    parser.add_argument("--repackage", action="store_true",
+                        help="Re-zip after codesigning (macOS CI)")
     args = parser.parse_args()
+
+    if args.repackage:
+        _repackage()
+        return
 
     system = platform.system()
     if system not in OS_LABELS:
@@ -83,6 +89,17 @@ def main():
 
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.write(binary_path, arcname=binary_name)
+        # Include launcher scripts for macOS / Linux
+        if system == "Darwin":
+            launcher = _macos_launcher()
+            archive.writestr("START.command", launcher)
+        elif system == "Linux":
+            launcher = _linux_launcher()
+            archive.writestr("start.sh", launcher)
+
+    # Fix permissions inside zip for macOS / Linux launchers
+    if system in ("Darwin", "Linux"):
+        _fix_zip_permissions(zip_path)
 
     print("Build complete.")
     print(f"Binary: {binary_path}")
@@ -114,6 +131,71 @@ def main():
                     print(f"Inno Setup failed: {exc}")
             else:
                 print("Inno Setup not found - skipping installer")
+
+
+def _repackage():
+    """Re-create the zip after the binary has been codesigned (macOS CI only)."""
+    system = platform.system()
+    binary_name = APP_NAME + (".exe" if system == "Windows" else "")
+    binary_path = os.path.join("dist", binary_name)
+    if not os.path.exists(binary_path):
+        raise FileNotFoundError(f"Binary not found: {binary_path}")
+
+    zip_name = f"{APP_NAME}-{OS_LABELS[system]}.zip"
+    zip_path = os.path.join("dist", zip_name)
+    remove_path(zip_path)
+
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.write(binary_path, arcname=binary_name)
+        if system == "Darwin":
+            archive.writestr("START.command", _macos_launcher())
+        elif system == "Linux":
+            archive.writestr("start.sh", _linux_launcher())
+
+    if system in ("Darwin", "Linux"):
+        _fix_zip_permissions(zip_path)
+    print(f"Repackaged: {zip_path}")
+
+
+def _macos_launcher():
+    return (
+        '#!/bin/bash\n'
+        '# Double-click this file to launch Automatic Writing Assistant\n'
+        '# It removes the macOS quarantine flag automatically.\n'
+        'cd "$(dirname "$0")"\n'
+        'xattr -cr AutomaticWritingAssistant 2>/dev/null\n'
+        'chmod +x AutomaticWritingAssistant 2>/dev/null\n'
+        './AutomaticWritingAssistant &\n'
+        'exit 0\n'
+    )
+
+
+def _linux_launcher():
+    return (
+        '#!/bin/bash\n'
+        '# Run this script to launch Automatic Writing Assistant\n'
+        'cd "$(dirname "$0")"\n'
+        'chmod +x AutomaticWritingAssistant 2>/dev/null\n'
+        './AutomaticWritingAssistant &\n'
+        'exit 0\n'
+    )
+
+
+def _fix_zip_permissions(zip_path):
+    """Set executable permission bits on launcher scripts inside the zip."""
+    import stat
+    import struct
+    # Re-open and fix external_attr for .sh / .command files
+    tmp = zip_path + ".tmp"
+    with zipfile.ZipFile(zip_path, "r") as zin, \
+         zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as zout:
+        for info in zin.infolist():
+            data = zin.read(info.filename)
+            if info.filename.endswith((".sh", ".command")) or info.filename == APP_NAME:
+                info.external_attr = (stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP |
+                                      stat.S_IROTH | stat.S_IXOTH) << 16
+            zout.writestr(info, data)
+    os.replace(tmp, zip_path)
 
 
 def _find_inno_setup():

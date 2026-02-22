@@ -46,6 +46,14 @@ jobs:
       - name: Build release artifacts
         run: python build_release.py --clean
 
+      - name: Ad-hoc codesign macOS binary
+        if: runner.os == 'macOS'
+        run: codesign --force --deep -s - dist/AutomaticWritingAssistant
+
+      - name: Package macOS zip with launcher
+        if: runner.os == 'macOS'
+        run: python build_release.py --repackage
+
       - name: Build Windows installer (Inno Setup)
         if: runner.os == 'Windows'
         run: |

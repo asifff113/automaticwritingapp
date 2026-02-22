@@ -131,6 +131,26 @@ a:hover{color:#9b8fff}
 .platform-instructions .inst-body li{margin-bottom:.4rem}
 .platform-instructions .inst-body .cmd{display:block;background:rgba(0,0,0,.3);padding:.5rem .75rem;border-radius:6px;font-family:'SF Mono','Fira Code',monospace;font-size:.8rem;color:var(--accent2);margin:.5rem 0;overflow-x:auto}
 
+/* Quick-start steps (always visible) */
+.quickstart{max-width:740px;margin:2.5rem auto 0;text-align:left}
+.quickstart h3{text-align:center;font-size:1.1rem;margin-bottom:1.25rem;color:var(--text)}
+.qs-step{display:flex;gap:1rem;align-items:flex-start;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:1.1rem 1.25rem;margin-bottom:.6rem;transition:border-color .3s}
+.qs-step:hover{border-color:rgba(96,85,232,.35)}
+.qs-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px}
+.qs-content{flex:1}
+.qs-content strong{color:var(--text);font-size:.9rem}
+.qs-content p{color:var(--text2);font-size:.83rem;margin-top:.2rem;line-height:1.6}
+.qs-content .cmd{display:block;background:rgba(0,0,0,.3);padding:.4rem .65rem;border-radius:5px;font-family:'SF Mono','Fira Code',monospace;font-size:.78rem;color:var(--accent2);margin-top:.35rem;overflow-x:auto;cursor:pointer;position:relative}
+.qs-content .cmd:hover::after{content:'click to copy';position:absolute;right:.5rem;top:50%;transform:translateY(-50%);font-size:.65rem;color:var(--text3);font-family:inherit}
+.qs-badge{display:inline-block;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;padding:.15rem .4rem;border-radius:3px;font-weight:600;margin-left:.4rem;vertical-align:middle}
+.qs-badge-warn{background:rgba(251,191,36,.12);color:var(--warning)}
+.qs-badge-ok{background:rgba(52,211,153,.12);color:var(--success)}
+.qs-os-group{margin-bottom:1.5rem}
+.qs-os-label{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.95rem;color:var(--text);margin-bottom:.6rem;padding-left:.25rem}
+.qs-os-label .plat-icon{font-size:1.1rem}
+.qs-tip{background:rgba(96,85,232,.06);border:1px solid rgba(96,85,232,.15);border-radius:var(--radius-sm);padding:.75rem 1rem;margin-top:.5rem;font-size:.8rem;color:var(--text2);line-height:1.6}
+.qs-tip strong{color:var(--accent2)}
+
 /* ---- WHAT'S NEW ---- */
 .whats-new{padding:6rem 2rem;background:var(--bg2)}
 .whats-new-inner{max-width:800px;margin:0 auto}
@@ -434,71 +454,111 @@ a:hover{color:#9b8fff}
     </div>
   </div>
 
-  <!-- Setup instructions per platform -->
-  <div class="platform-instructions fade-in">
-    <details>
-      <summary><span class="plat-icon">&#128187;</span> Windows setup instructions</summary>
-      <div class="inst-body">
-        <ol>
-          <li>Download the <strong>installer (.exe)</strong> above.</li>
-          <li>Double-click to run. Windows may show a SmartScreen warning &mdash; click <em>"More info"</em> then <em>"Run anyway"</em>.</li>
-          <li>Follow the setup wizard: <strong>Next &rarr; Accept License &rarr; Choose folder &rarr; Install</strong>.</li>
-          <li>A desktop shortcut and Start Menu entry are created automatically.</li>
-          <li>Launch the app from the desktop or Start Menu. To uninstall, use <em>Add/Remove Programs</em>.</li>
-        </ol>
-        <p style="margin-top:.5rem;color:var(--text3)">Prefer no install? Use the <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-portable.exe" style="color:var(--accent2)">portable .exe</a> instead &mdash; just download and run, no setup needed.</p>
+  <!-- Quick-start: always visible, OS auto-shown -->
+  <div class="quickstart fade-in" id="quickstart">
+    <h3>Quick Start &mdash; 2 minutes to get running</h3>
+
+    <!-- WINDOWS quick-start -->
+    <div class="qs-os-group" id="qsWindows">
+      <div class="qs-os-label"><span class="plat-icon">&#128187;</span> Windows</div>
+      <div class="qs-step">
+        <div class="qs-num">1</div>
+        <div class="qs-content">
+          <strong>Download &amp; run</strong>
+          <p>Click the download button above. The <code>.exe</code> is portable &mdash; no installation needed.</p>
+        </div>
       </div>
-    </details>
-    <details>
-      <summary><span class="plat-icon">&#127823;</span> macOS install + use instructions</summary>
-      <div class="inst-body">
-        <ol>
-          <li>Download the <strong>.zip</strong> file and double-click to extract.</li>
-          <li>macOS will block the app (Gatekeeper). To bypass: open <strong>Terminal</strong> and run:</li>
-        </ol>
-        <code class="cmd">xattr -cr ~/Downloads/AutomaticWritingAssistant</code>
-        <ol start="3">
-          <li>Then double-click the binary, or right-click &rarr; <em>"Open"</em>. Confirm when prompted.</li>
-          <li>Go to <strong>System Settings &rarr; Privacy &amp; Security &rarr; Accessibility</strong> and grant permission to the app.</li>
-          <li>Use the app:
-            <ol>
-              <li>Paste your text in the editor.</li>
-              <li>Set countdown and typing speed.</li>
-              <li>Click <strong>Start Typing</strong>.</li>
-              <li>Switch to the target website/app input field before countdown ends.</li>
-              <li>Press <strong>F9</strong> (if available) or click <strong>Stop</strong> in the app.</li>
-            </ol>
-          </li>
-        </ol>
-        <p style="margin-top:.5rem;color:var(--text3)">Or from Terminal:</p>
-        <code class="cmd">chmod +x AutomaticWritingAssistant &amp;&amp; ./AutomaticWritingAssistant</code>
-        <p style="margin-top:.75rem;color:var(--text3)">Run from source (advanced):</p>
-        <code class="cmd">python3 -m pip install -r requirements.txt &amp;&amp; python3 app.py</code>
+      <div class="qs-step">
+        <div class="qs-num">2</div>
+        <div class="qs-content">
+          <strong>Bypass SmartScreen <span class="qs-badge qs-badge-warn">one-time</span></strong>
+          <p>Windows may say <em>&ldquo;Windows protected your PC&rdquo;</em>. Click <strong>&ldquo;More info&rdquo;</strong> then <strong>&ldquo;Run anyway&rdquo;</strong>. This only happens once.</p>
+        </div>
       </div>
-    </details>
-    <details>
-      <summary><span class="plat-icon">&#128039;</span> Linux install + use instructions</summary>
-      <div class="inst-body">
-        <ol>
-          <li>Download the <strong>.zip</strong> file and extract it.</li>
-          <li>Make the binary executable and run it:</li>
-          <li>If prompted by your desktop environment, allow the app to run.</li>
-          <li>Use the app:
-            <ol>
-              <li>Paste your text in the editor.</li>
-              <li>Set countdown and typing speed.</li>
-              <li>Click <strong>Start Typing</strong>.</li>
-              <li>Focus the target website/app input field before countdown ends.</li>
-              <li>Stop with <strong>F9</strong> (if available) or the in-app <strong>Stop</strong> button.</li>
-            </ol>
-          </li>
-        </ol>
-        <code class="cmd">chmod +x AutomaticWritingAssistant &amp;&amp; ./AutomaticWritingAssistant</code>
-        <p style="margin-top:.5rem;color:var(--text3)">Requires a desktop session (X11 or Wayland) with input access.</p>
-        <p style="margin-top:.75rem;color:var(--text3)">Run from source (advanced):</p>
-        <code class="cmd">python3 -m pip install -r requirements.txt &amp;&amp; python3 app.py</code>
+      <div class="qs-step">
+        <div class="qs-num">3</div>
+        <div class="qs-content">
+          <strong>Start typing</strong>
+          <p>Paste text, set your speed, click <strong>Start Typing</strong>, switch to the target app. Done!</p>
+        </div>
       </div>
-    </details>
+      <div class="qs-tip">
+        <strong>Tip:</strong> Want a proper installer with desktop shortcut? Use the <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-setup.exe" style="color:var(--accent2)">Windows Installer</a> instead.
+      </div>
+    </div>
+
+    <!-- MACOS quick-start -->
+    <div class="qs-os-group" id="qsMac" style="display:none">
+      <div class="qs-os-label"><span class="plat-icon">&#127823;</span> macOS</div>
+      <div class="qs-step">
+        <div class="qs-num">1</div>
+        <div class="qs-content">
+          <strong>Download &amp; extract</strong>
+          <p>Download the <code>.zip</code> above and double-click to unzip.</p>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">2</div>
+        <div class="qs-content">
+          <strong>Remove quarantine <span class="qs-badge qs-badge-warn">one-time</span></strong>
+          <p>macOS blocks apps not from the App Store. Open <strong>Terminal</strong> (search Spotlight) and paste:</p>
+          <code class="cmd" onclick="navigator.clipboard.writeText(this.textContent.trim())">xattr -cr ~/Downloads/AutomaticWritingAssistant</code>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">3</div>
+        <div class="qs-content">
+          <strong>Open the app</strong>
+          <p>Double-click <strong>AutomaticWritingAssistant</strong>. If macOS still asks, right-click &rarr; Open &rarr; Open.</p>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">4</div>
+        <div class="qs-content">
+          <strong>Grant Accessibility access <span class="qs-badge qs-badge-warn">one-time</span></strong>
+          <p>Go to <strong>System Settings &rarr; Privacy &amp; Security &rarr; Accessibility</strong> and enable the app.</p>
+        </div>
+      </div>
+      <div class="qs-tip">
+        <strong>Even easier:</strong> Inside the zip there is a <code>START.command</code> file. Double-click it &mdash; it removes the quarantine flag and launches the app automatically.
+      </div>
+    </div>
+
+    <!-- LINUX quick-start -->
+    <div class="qs-os-group" id="qsLinux" style="display:none">
+      <div class="qs-os-label"><span class="plat-icon">&#128039;</span> Linux</div>
+      <div class="qs-step">
+        <div class="qs-num">1</div>
+        <div class="qs-content">
+          <strong>Download &amp; extract</strong>
+          <p>Download the <code>.zip</code> and extract it.</p>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">2</div>
+        <div class="qs-content">
+          <strong>Run the launcher</strong>
+          <p>Open a terminal in the extracted folder and run:</p>
+          <code class="cmd" onclick="navigator.clipboard.writeText(this.textContent.trim())">bash start.sh</code>
+          <p style="margin-top:.3rem">Or make executable manually: <code style="color:var(--accent2);font-size:.78rem">chmod +x AutomaticWritingAssistant &amp;&amp; ./AutomaticWritingAssistant</code></p>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">3</div>
+        <div class="qs-content">
+          <strong>Start typing <span class="qs-badge qs-badge-ok">ready</span></strong>
+          <p>Paste text, set speed, click <strong>Start Typing</strong>, switch to target window. Done!</p>
+        </div>
+      </div>
+      <div class="qs-tip">
+        <strong>Note:</strong> Requires a desktop session (X11 or Wayland). On Wayland you may need to grant input access.
+      </div>
+    </div>
+
+    <!-- Show all platforms link -->
+    <p style="text-align:center;margin-top:1rem">
+      <a href="#" id="showAllPlatforms" style="font-size:.82rem;color:var(--text3)">Show instructions for all platforms</a>
+    </p>
   </div>
 
   <p class="download-note">
@@ -622,6 +682,22 @@ typeLoop();
     // Windows default - portable exe as primary
     heroText.textContent = 'Download for Windows';
   }
+
+  // Show the appropriate quick-start section
+  const qsWin = document.getElementById('qsWindows');
+  const qsMac = document.getElementById('qsMac');
+  const qsLinux = document.getElementById('qsLinux');
+  if (os === 'macOS') { qsWin.style.display = 'none'; qsMac.style.display = ''; }
+  else if (os === 'Linux') { qsWin.style.display = 'none'; qsLinux.style.display = ''; }
+
+  // "Show all platforms" toggle
+  document.getElementById('showAllPlatforms').addEventListener('click', function(e) {
+    e.preventDefault();
+    qsWin.style.display = '';
+    qsMac.style.display = '';
+    qsLinux.style.display = '';
+    this.style.display = 'none';
+  });
 })();
 
 // --- Smooth scroll ---
