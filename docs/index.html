@@ -383,24 +383,24 @@ a:hover{color:#9b8fff}
   <div class="download-hero fade-in">
     <span class="section-label">Download</span>
     <h2 class="section-title">Get Automatic Writing Assistant</h2>
-    <p class="section-desc" style="margin-left:auto;margin-right:auto">Free and open-source. Windows installer with full setup wizard, or portable downloads for all platforms.</p>
+    <p class="section-desc" style="margin-left:auto;margin-right:auto">Free and open-source. Portable downloads for all platforms. Windows installer also available.</p>
   </div>
 
   <!-- Primary download (auto-detected OS) -->
   <div class="download-primary fade-in" id="downloadPrimary">
     <div class="os-icon" id="primaryIcon">&#128187;</div>
     <h3 id="primaryTitle">Download for Windows</h3>
-    <p class="os-desc" id="primaryDesc">Windows 10/11 &bull; 64-bit &bull; Installer with setup wizard</p>
-    <a id="primaryLink" href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-setup.exe" class="btn btn-primary">
+    <p class="os-desc" id="primaryDesc">Windows 10/11 &bull; 64-bit &bull; Portable (no install needed)</p>
+    <a id="primaryLink" href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-portable.exe" class="btn btn-primary">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span id="primaryBtnText">Download Installer</span>
+      <span id="primaryBtnText">Download .exe</span>
     </a>
     <div class="download-meta">
       <span id="primarySize">~12 MB</span>
-      <span>Setup wizard &bull; Desktop shortcut</span>
+      <span>Portable &bull; No install needed</span>
       <span>v3.0</span>
     </div>
-    <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-portable.exe" style="display:inline-block;margin-top:.6rem;font-size:.78rem;color:var(--text3)">or download portable .exe (no install needed)</a>
+    <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-setup.exe" style="display:inline-block;margin-top:.6rem;font-size:.78rem;color:var(--text3)">or download installer with setup wizard</a>
   </div>
 
   <!-- Other platforms -->
@@ -427,7 +427,7 @@ a:hover{color:#9b8fff}
       <div class="os-icon">&#128187;</div>
       <h4>Windows</h4>
       <p>Windows 10/11 &bull; 64-bit</p>
-      <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-setup.exe" class="btn">
+      <a href="https://github.com/asifff113/automaticwritingapp/releases/latest/download/AutomaticWritingAssistant-windows-portable.exe" class="btn">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download .exe
       </a>
@@ -616,7 +616,7 @@ typeLoop();
     altLinux.style.display = 'none';
     altWin.style.display = '';
   } else {
-    // Windows default - installer as primary
+    // Windows default - portable exe as primary
     heroText.textContent = 'Download for Windows';
   }
 })();
